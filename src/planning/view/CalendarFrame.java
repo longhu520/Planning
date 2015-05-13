@@ -48,18 +48,6 @@ public class CalendarFrame extends JFrame implements ActionListener {
 			titleName[i] = new JButton(weeks[i]);
 			pCenter.add(titleName[i]);
 		}
-		for (int i = 0; i < 42; i++) {
-			JPanel jPanel = new JPanel();
-			jPanel.setLayout(new GridLayout(3, 1));
-			dayLabels[i] = new JLabel("", JLabel.CENTER);
-			JTextField jTextField1 = new JTextField();
-			JTextField jTextField2 = new JTextField();
-			jPanel.add(dayLabels[i]);
-			jPanel.add(jTextField1);
-			jPanel.add(jTextField2);
-			pCenter.add(jPanel);
-//			pCenter.add(dayLabels[i]);
-		}
 
 		for (int i = 2010; i <= 2020; i++) {
 			yearChoice.addItem(i + "");
@@ -75,10 +63,23 @@ public class CalendarFrame extends JFrame implements ActionListener {
 		calendar = new MyCalendar();
 		calendar.setYear(year);
 		calendar.setMonth(month);
-		String day[] = calendar.getCalendar();
+		String[] day = calendar.getCalendar();
 
-		for (int i = 0; i < 42; i++) {
+		for (int i = 0; i < day.length; i++) {
+			JPanel jPanel = new JPanel();
+			jPanel.setLayout(new GridLayout(3, 1));
+			dayLabels[i] = new JLabel("", JLabel.CENTER);
+			JTextField jTextField1 = new JTextField();
+			JTextField jTextField2 = new JTextField();
+			jPanel.add(dayLabels[i]);
+			jPanel.add(jTextField1);
+			jPanel.add(jTextField2);
+			pCenter.add(jPanel);
 			dayLabels[i].setText(day[i]);
+			if (day[i] == null || (i - 5) % 7 == 0 || (i - 6) % 7 == 0) {
+				jTextField1.setEditable(false);
+				jTextField2.setEditable(false);
+			}
 		}
 
 		jButton1.addActionListener(this);
