@@ -2,6 +2,7 @@ package planning.view;
 
 import java.awt.BorderLayout;
 import java.awt.Choice;
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
@@ -48,8 +49,16 @@ public class CalendarFrame extends JFrame implements ActionListener {
 			pCenter.add(titleName[i]);
 		}
 		for (int i = 0; i < 42; i++) {
+			JPanel jPanel = new JPanel();
+			jPanel.setLayout(new GridLayout(3, 1));
 			dayLabels[i] = new JLabel("", JLabel.CENTER);
-			pCenter.add(dayLabels[i]);
+			JTextField jTextField1 = new JTextField();
+			JTextField jTextField2 = new JTextField();
+			jPanel.add(dayLabels[i]);
+			jPanel.add(jTextField1);
+			jPanel.add(jTextField2);
+			pCenter.add(jPanel);
+//			pCenter.add(dayLabels[i]);
 		}
 
 		for (int i = 2010; i <= 2020; i++) {
