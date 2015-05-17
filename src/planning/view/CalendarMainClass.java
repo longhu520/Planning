@@ -12,9 +12,9 @@ public class CalendarMainClass {
                 e.printStackTrace();  
               }  
               CalendarFrame frame=new CalendarFrame();   
-              frame.setBounds(200,200,360,300);   
+              frame.setBounds(200,200,800,600);   
               frame.setTitle("Planning");  
-              frame.setLocationRelativeTo(null);//窗体居中显示  
+              frame.setLocationRelativeTo(null); 
               frame.setVisible(true);   
               frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
         }   

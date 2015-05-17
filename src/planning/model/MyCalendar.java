@@ -34,6 +34,9 @@ public class MyCalendar {
         Calendar date = Calendar.getInstance();
         date.set(year, month - 1, 1);
         int week = date.get(Calendar.DAY_OF_WEEK) - 2;
+        if (week < 0) {
+			week = 6;
+		}
         int day = 0;
 
         //les mois de 31 jours  

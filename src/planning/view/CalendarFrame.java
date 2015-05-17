@@ -28,13 +28,16 @@ public class CalendarFrame extends JFrame implements ActionListener {
 	Choice monthChoice = new Choice();
 	JButton jButton1 = new JButton("OK");
 	JLabel dayLabels[] = new JLabel[42];
-	JTextField text = new JTextField(10);
+	JTextField textFieldsAM[] = new JTextField[42];
+	JTextField textFieldsPM[] = new JTextField[42];
+ 	JTextField text = new JTextField(10);
 	JButton titleName[] = new JButton[7];
 	JButton jButton2 = new JButton();
 	String weeks[] = { "lundi", "mardi", "mercredi", "jeudi", "vendredi",
 			"samedi", "dimanche" };
 	int year = 2015, month = 5;
 	MyCalendar calendar;
+	private String[] day;
 
 	public CalendarFrame() {
 		this.setJMenuBar(menubar);
@@ -63,22 +66,22 @@ public class CalendarFrame extends JFrame implements ActionListener {
 		calendar = new MyCalendar();
 		calendar.setYear(year);
 		calendar.setMonth(month);
-		String[] day = calendar.getCalendar();
+		day = calendar.getCalendar();
 
 		for (int i = 0; i < day.length; i++) {
 			JPanel jPanel = new JPanel();
 			jPanel.setLayout(new GridLayout(3, 1));
 			dayLabels[i] = new JLabel("", JLabel.CENTER);
-			JTextField jTextField1 = new JTextField();
-			JTextField jTextField2 = new JTextField();
+			textFieldsAM[i] = new JTextField();
+			textFieldsPM[i] = new JTextField();
 			jPanel.add(dayLabels[i]);
-			jPanel.add(jTextField1);
-			jPanel.add(jTextField2);
+			jPanel.add(textFieldsAM[i]);
+			jPanel.add(textFieldsPM[i]);
 			pCenter.add(jPanel);
 			dayLabels[i].setText(day[i]);
 			if (day[i] == null || (i - 5) % 7 == 0 || (i - 6) % 7 == 0) {
-				jTextField1.setEditable(false);
-				jTextField2.setEditable(false);
+				textFieldsAM[i].setEditable(false);
+				textFieldsPM[i].setEditable(false);
 			}
 		}
 
@@ -103,10 +106,17 @@ public class CalendarFrame extends JFrame implements ActionListener {
 			year = Integer.parseInt(yearChoice.getSelectedItem());
 			calendar.setMonth(month);
 			calendar.setYear(year);
-			String day[] = calendar.getCalendar();
+			day = calendar.getCalendar();
 
-			for (int i = 0; i < 42; i++) {
+			for (int i = 0; i < day.length; i++) {
 				dayLabels[i].setText(day[i]);
+				if (day[i] == null || (i - 5) % 7 == 0 || (i - 6) % 7 == 0) {
+					textFieldsAM[i].setEditable(false);
+					textFieldsPM[i].setEditable(false);
+				}else {
+					textFieldsAM[i].setEditable(true);
+					textFieldsPM[i].setEditable(true);
+				}
 			}
 
 		}
