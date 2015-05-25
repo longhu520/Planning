@@ -1,4 +1,4 @@
-package planning.view;
+ package planning.view;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 
+import planning.model.Jour;
 import planning.model.Module;
 import planning.model.MyCalendar;
 import planning.model.Planning;
@@ -55,7 +56,8 @@ public class CalendarFrame extends JFrame implements ActionListener,Observer {
 	int year = 2015, month = 5;
 	MyCalendar calendar;
 	private String[] day;
-	private JButton okButton;
+	private ArrayList<Jour> jours;
+	private JButton editButton;
 	private JButton cancerButton;
 	private JDialog dialog;
 	private Planning planning;
@@ -105,6 +107,7 @@ public class CalendarFrame extends JFrame implements ActionListener,Observer {
 		calendar.setYear(year);
 		calendar.setMonth(month);
 		day = calendar.getCalendar();
+		jours = calendar.getJours();
 		calendar.addObserver(CalendarFrame.this);
 
 		for (int i = 0; i < day.length; i++) {
@@ -151,11 +154,16 @@ public class CalendarFrame extends JFrame implements ActionListener,Observer {
 			year = Integer.parseInt(yearChoice.getSelectedItem());
 			calendar.setMonth(month);
 			calendar.setYear(year);
-		}else if (e.getSource() == okButton) {
-			int index = moduleChoice.getSelectedIndex();
-			Module module = modules.get(index);
+		}else if (e.getSource() == editButton) {
+			int indexChoice = moduleChoice.getSelectedIndex();
+			Module module = modules.get(indexChoice);
 			clickedTextField.setText(module.getAbreviation());
 			clickedTextField.setBackground(module.getColor());
+			if (clickedTextField == textFieldsAM[onClickedIndex]) {
+				
+			}else if (clickedTextField == textFieldsPM[onClickedIndex]) {
+
+			}
 			dialog.setVisible(false);
 		}else if (e.getSource() == cancerButton) {
 			dialog.setVisible(false);
@@ -227,16 +235,17 @@ public class CalendarFrame extends JFrame implements ActionListener,Observer {
 		jPanel.add(titleTextField);
 		jPanel.add(new JLabel("Nombre"));
 		jPanel.add(new JTextField());
-		okButton = new JButton("OK");
-		jPanel.add(okButton);
+		editButton = new JButton("Edit");
+		jPanel.add(editButton);
 		cancerButton = new JButton("Cancer");
 		jPanel.add(cancerButton);
+		
 		if (e.getSource() == textFieldsAM[index]) {
 			clickedTextField = textFieldsAM[index];
 		}else if (e.getSource() == textFieldsPM[index]) {
 			clickedTextField = textFieldsPM[index];
 		}
-		okButton.addActionListener(this);
+		editButton.addActionListener(this);
 		cancerButton.addActionListener(this);
 		container.add(jPanel);
 		dialog.setBounds(500, 300, 250, 250);

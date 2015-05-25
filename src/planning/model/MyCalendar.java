@@ -1,17 +1,22 @@
 package planning.model;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Observable;
 
 public class MyCalendar extends Observable{
 	private int year;
     private int month;
+    private ArrayList<Jour> jours;
 
-    public MyCalendar(){}
+	public MyCalendar(){
+		jours = new ArrayList<Jour>();
+	}
     
     public MyCalendar(int year, int month){
         this.year = year;
         this.month = month;
+        jours = new ArrayList<Jour>();
         
     }
     
@@ -35,7 +40,16 @@ public class MyCalendar extends Observable{
         return month;
     }
 
-    public String[] getCalendar() {
+    
+    public ArrayList<Jour> getJours() {
+		return jours;
+	}
+
+	public void setJours(ArrayList<Jour> jours) {
+		this.jours = jours;
+	}
+
+	public String[] getCalendar() {
         String a[] = new String[42];
         Calendar date = Calendar.getInstance();
         date.set(year, month - 1, 1);
