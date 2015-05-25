@@ -1,8 +1,9 @@
 package planning.model;
 
 import java.util.Calendar;
+import java.util.Observable;
 
-public class MyCalendar {
+public class MyCalendar extends Observable{
 	private int year;
     private int month;
 
@@ -11,10 +12,13 @@ public class MyCalendar {
     public MyCalendar(int year, int month){
         this.year = year;
         this.month = month;
+        
     }
     
     public void setYear(int year) {
         this.year = year;
+        setChanged();
+        notifyObservers(this);
     }
 
     public int getYear() {
@@ -23,6 +27,8 @@ public class MyCalendar {
 
     public void setMonth(int month) {
         this.month = month;
+        setChanged();
+        notifyObservers(this);
     }
 
     public int getMonth() {
