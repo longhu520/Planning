@@ -26,9 +26,6 @@ public class Formation {
 		}
 		return h; 
 	}
-	public void setHeures(int heures) {
-		this.heures = heures;
-	}
 	public int getJours() {
 		return jours;
 	}
@@ -38,8 +35,6 @@ public class Formation {
 	public ArrayList<Module> getModules() {
 		return modules;
 	}
-	public void setModules(ArrayList<Module> modules) {
-		this.modules = modules;
-	}
+	
 	
 }
