@@ -183,8 +183,10 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 				e1.printStackTrace();
 			}
 		}else if (e.getSource() == saveItem) {
+			JFileChooser fileChooser = new JFileChooser();
+			fileChooser.showSaveDialog(this);
 			try {
-				FileOutputStream fos = new FileOutputStream(PATH_STRING);
+				FileOutputStream fos = new FileOutputStream(fileChooser.getSelectedFile().getAbsolutePath());
 				ObjectOutputStream oos = new ObjectOutputStream(fos);
 				oos.writeObject(calendar);
 				oos.close();
