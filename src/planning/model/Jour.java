@@ -1,13 +1,14 @@
 package planning.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Jour
- * @author PaulPark
+ * @author Piao
  *
  */
-public class Jour {
+public class Jour implements Serializable{
 	private Module morning;
 	private Module afternoon;
 	

@@ -1,18 +1,26 @@
 package planning.model;
 
 import java.awt.Color;
+import java.io.Serializable;
 
 /**
  * Module
- * @author PaulPark
+ * @author Piao
  *
  */
-public class Module {
+public class Module implements Serializable{
 	private String nom;
 	private String abreviation;
 	private Color color;
 	private int nombre;
+	private int duree;
 	
+	public int getDuree() {
+		return duree;
+	}
+	public void setDuree(int duree) {
+		this.duree = duree;
+	}
 	public String getNom() {
 		return nom;
 	}

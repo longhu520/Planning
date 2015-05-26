@@ -18,6 +18,7 @@ public class Planning extends Observable{
 		module1.setAbreviation("Stochastique");
 		module1.setColor(Color.YELLOW);
 		module1.setNombre(38);
+		module1.setDuree(2);
 		modules.add(module1);
 		
 		Module module2 = new Module();
@@ -25,6 +26,7 @@ public class Planning extends Observable{
 		module2.setAbreviation("Graphe");
 		module2.setColor(Color.CYAN);
 		module2.setNombre(38);
+		module2.setDuree(2);
 		modules.add(module2);
 		
 		Module module3 = new Module();
@@ -32,6 +34,7 @@ public class Planning extends Observable{
 		module3.setAbreviation("BD");
 		module3.setColor(Color.GREEN);
 		module3.setNombre(38);
+		module3.setDuree(2);
 		modules.add(module3);
 		
 		Module module4 = new Module();
@@ -39,6 +42,7 @@ public class Planning extends Observable{
 		module4.setAbreviation("Java");
 		module4.setColor(Color.MAGENTA);
 		module4.setNombre(38);
+		module4.setDuree(2);
 		modules.add(module4);
 		
 		Module module5 = new Module();
@@ -46,6 +50,7 @@ public class Planning extends Observable{
 		module5.setAbreviation("Compta");
 		module5.setColor(Color.ORANGE);
 		module5.setNombre(38);
+		module5.setDuree(2);
 		modules.add(module5);
 		
 		Module module6 = new Module();
@@ -53,6 +58,7 @@ public class Planning extends Observable{
 		module6.setAbreviation("THO");
 		module6.setColor(Color.PINK);
 		module6.setNombre(21);
+		module6.setDuree(2);
 		modules.add(module6);
 		
 		Module module7 = new Module();
@@ -60,10 +66,8 @@ public class Planning extends Observable{
 		module7.setAbreviation("IHM");
 		module7.setColor(Color.RED);
 		module7.setNombre(38);
+		module7.setDuree(2);
 		modules.add(module7);
-		
-		setChanged();
-		notifyObservers(this);
 	}
 	
 	public ArrayList<Module> getModules(){

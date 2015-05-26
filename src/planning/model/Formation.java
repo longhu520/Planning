@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 /**
  * Formation
- * @author PaulPark
+ * @author Piao
  *
  */
 public class Formation {
