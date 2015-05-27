@@ -1,16 +1,31 @@
 package planning.model;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Observable;
 
-public class Planning extends Observable{
+public class Planning extends Observable implements Serializable{
 	private Formation formation;
 	private ArrayList<Module> modules;
+	private ArrayList<MyCalendar> calendarList;
 	
+	public ArrayList<MyCalendar> getCalendarList() {
+		return calendarList;
+	}
+
+	public void setCalendarList(ArrayList<MyCalendar> calendarList) {
+		this.calendarList = calendarList;
+	}
+
 	public Planning(){
 		formation = new Formation();
 		formation.setNom("MIAGE");
+		calendarList = new ArrayList<MyCalendar>();
 		
 		modules = new ArrayList<Module>();
 		Module module1 = new Module();

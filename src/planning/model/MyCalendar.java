@@ -118,14 +118,4 @@ public class MyCalendar extends Observable implements Serializable{
 		setChanged();
 		notifyObservers(this);
 	}
-	
-	public void deSerialiser(File file) throws IOException, ClassNotFoundException{
-		FileInputStream fis = new FileInputStream(file);
-		ObjectInputStream ois = new ObjectInputStream(fis);
-		MyCalendar calendar = (MyCalendar) ois.readObject();
-		ois.close();
-		this.setYearMonth(calendar.getYear(), calendar.getMonth());
-		this.setJours(calendar.getJours());
-		update();
-	}
 }

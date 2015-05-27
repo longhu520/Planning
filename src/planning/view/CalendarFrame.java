@@ -15,9 +15,11 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,12 +77,13 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 	private String[] moduleNames;
 	private Choice moduleChoice;
 	private int onClickedIndex;
-	private ArrayList<MyCalendar> calendarList = new ArrayList<MyCalendar>();
+	private ArrayList<MyCalendar> calendarList;
 	private JPanel pCenter;
 
 	public CalendarFrame() {
 		planning = new Planning();
 		modules = planning.getModules();
+		calendarList = planning.getCalendarList();
 		moduleNames = new String[modules.size()];
 		for (int i = 0; i < modules.size(); i++) {
 			moduleNames[i] = modules.get(i).getNom();
@@ -170,6 +173,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 			MyCalendar mCalendar = new MyCalendar(year, month);
 			if (calendarList.contains(mCalendar)) {
 				calendar = calendarList.get(calendarList.indexOf(mCalendar));
+				calendar.addObserver(this);
 			} else {
 				mCalendar.addObserver(this);
 				calendarList.add(mCalendar);
@@ -181,7 +185,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 			fileChooser.showOpenDialog(this);
 			File file = fileChooser.getSelectedFile();
 			try {
-				calendar.deSerialiser(file);
+				deSerialiser(file);
 			} catch (ClassNotFoundException | IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -193,7 +197,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 				FileOutputStream fos = new FileOutputStream(fileChooser
 						.getSelectedFile().getAbsolutePath());
 				ObjectOutputStream oos = new ObjectOutputStream(fos);
-				oos.writeObject(calendar);
+				oos.writeObject(planning);
 				oos.close();
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
@@ -454,5 +458,22 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 				textFieldsPM[i].addMouseListener(new onMouseLisener(i));
 			}
 		}
+	}
+	
+	public void deSerialiser(File file) throws IOException, ClassNotFoundException{
+		FileInputStream fis = new FileInputStream(file);
+		ObjectInputStream ois = new ObjectInputStream(fis);
+		planning  = (Planning) ois.readObject();
+		calendarList = planning.getCalendarList();
+		modules = planning.getModules();
+		month = Integer.parseInt(monthChoice.getSelectedItem());
+		year = Integer.parseInt(yearChoice.getSelectedItem());
+		MyCalendar mCalendar = new MyCalendar(year, month);
+		if (calendarList.contains(mCalendar)) {
+			calendar = calendarList.get(calendarList.indexOf(mCalendar));
+			calendar.addObserver(this);
+		}
+		calendar.update();
+		ois.close();
 	}
 }

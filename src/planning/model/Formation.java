@@ -1,5 +1,6 @@
 package planning.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -7,7 +8,7 @@ import java.util.ArrayList;
  * @author Piao
  *
  */
-public class Formation {
+public class Formation implements Serializable{
 	private String nom;
 	private int heures;
 	private int jours;
