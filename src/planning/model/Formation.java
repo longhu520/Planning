@@ -22,7 +22,7 @@ public class Formation {
 	public int getHeures() {
 		int h = 0;
 		for (int i = 0; i < modules.size(); i++) {
-			h += modules.get(i).getNombre();
+			h += modules.get(i).getNbSeance();
 		}
 		return h; 
 	}

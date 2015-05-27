@@ -20,6 +20,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -39,6 +42,7 @@ import planning.model.Jour;
 import planning.model.Module;
 import planning.model.MyCalendar;
 import planning.model.Planning;
+import planning.model.Seance;
 
 public class CalendarFrame extends JFrame implements ActionListener, Observer {
 	private final static String PATH_STRING = "C:/Users/piao/Desktop/mycalendar.dat";
@@ -172,7 +176,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 				calendar = mCalendar;
 			}
 			calendar.update();
-		}else if (e.getSource() == openItem) {
+		} else if (e.getSource() == openItem) {
 			JFileChooser fileChooser = new JFileChooser();
 			fileChooser.showOpenDialog(this);
 			File file = fileChooser.getSelectedFile();
@@ -182,11 +186,12 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-		}else if (e.getSource() == saveItem) {
+		} else if (e.getSource() == saveItem) {
 			JFileChooser fileChooser = new JFileChooser();
 			fileChooser.showSaveDialog(this);
 			try {
-				FileOutputStream fos = new FileOutputStream(fileChooser.getSelectedFile().getAbsolutePath());
+				FileOutputStream fos = new FileOutputStream(fileChooser
+						.getSelectedFile().getAbsolutePath());
 				ObjectOutputStream oos = new ObjectOutputStream(fos);
 				oos.writeObject(calendar);
 				oos.close();
@@ -196,7 +201,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			
+
 		}
 	}
 
@@ -212,7 +217,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 			onClickedIndex = index;
 			switch (e.getButton()) {
 			case MouseEvent.BUTTON1:
-				popEditDialog(e, index);
+				// popEditDialog(e, index);
 				break;
 			case MouseEvent.BUTTON3:
 				popUpMenu(e, index);
@@ -276,7 +281,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 				if (calendar.getJour(index).getMorning() != null) {
 					Module module = calendar.getJour(index).getMorning();
 					titleTextField.setText(module.getNom());
-					nombreTextField.setText(module.getNombre() + "");
+					nombreTextField.setText(module.getNbSeance() + "");
 				}
 			}
 			clickedTextField = textFieldsAM[index];
@@ -285,7 +290,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 				if (calendar.getJour(index).getAfternoon() != null) {
 					Module module = calendar.getJour(index).getAfternoon();
 					titleTextField.setText(module.getNom());
-					nombreTextField.setText(module.getNombre() + "");
+					nombreTextField.setText(module.getNbSeance() + "");
 				}
 			}
 			clickedTextField = textFieldsPM[index];
@@ -299,19 +304,28 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 			public void actionPerformed(ActionEvent e) {
 				int indexChoice = moduleChoice.getSelectedIndex();
 				Module module = modules.get(indexChoice);
-				Jour jour;
-				if (calendar.getJour(onClickedIndex) == null) {
-					jour = new Jour();
-				} else {
-					jour = calendar.getJour(onClickedIndex);
+				if (module.getSeances().size() < module.getNbSeance()) {
+					Seance seance = new Seance(module);
+					Jour jour;
+					if (calendar.getJour(onClickedIndex) == null) {
+						jour = new Jour();
+					} else {
+						jour = calendar.getJour(onClickedIndex);
+					}
+					if (clickedTextField == textFieldsAM[onClickedIndex]) {
+						jour.setMorning(module);
+						seance.setTime(Seance.AM);
+					}
+					if (clickedTextField == textFieldsPM[onClickedIndex]) {
+						jour.setAfternoon(module);
+						seance.setTime(Seance.PM);
+					}
+					Date date = new Date(year, month - 1, Integer
+							.parseInt(dayLabels[onClickedIndex].getText()));
+					seance.setDate(date);
+					module.getSeances().add(seance);
+					calendar.setJour(onClickedIndex, jour);
 				}
-				if (clickedTextField == textFieldsAM[onClickedIndex]) {
-					jour.setMorning(module);
-				}
-				if (clickedTextField == textFieldsPM[onClickedIndex]) {
-					jour.setAfternoon(module);
-				}
-				calendar.setJour(onClickedIndex, jour);
 				dialog.setVisible(false);
 				calendar.update();
 			}
@@ -351,12 +365,25 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 				if (e.getSource() == textFieldsAM[index]) {
 					if (calendar.getJour(index) != null) {
 						if (calendar.getJour(index).getMorning() != null) {
+							Module module = calendar.getJour(index).getMorning();
+							Seance seance = module.getSeance(
+									new Date(year, month - 1, Integer
+											.parseInt(dayLabels[index].getText())),
+									Seance.AM);
+							module.getSeances().remove(seance);
 							calendar.getJour(index).setMorning(null);
+							
 						}
 					}
 				} else if (e.getSource() == textFieldsPM[index]) {
 					if (calendar.getJour(index) != null) {
 						if (calendar.getJour(index).getAfternoon() != null) {
+							Module module = calendar.getJour(index).getAfternoon();
+							Seance seance = module.getSeance(
+									new Date(year, month - 1, Integer
+											.parseInt(dayLabels[index].getText())),
+									Seance.PM);
+							module.getSeances().remove(seance);
 							calendar.getJour(index).setAfternoon(null);
 						}
 					}
@@ -383,8 +410,17 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 					Jour jour = jours[i];
 					if (jour.getMorning() != null) {
 						Module amModule = jour.getMorning();
+						ArrayList<Seance> seanceList = amModule.getSeances();
+						Seance seance = amModule.getSeance(
+								new Date(year, month - 1, Integer
+										.parseInt(dayLabels[i].getText())),
+								Seance.AM);
+						Collections.sort(seanceList);
+						int numSeance = seanceList.indexOf(seance) + 1;
 						textFieldsAM[i].setText(amModule.getAbreviation() + " "
-								+ amModule.getDuree() + "h");
+								+ amModule.getDuree() + "h" + " "
+								+ numSeance + "/"
+								+ amModule.getNbSeance());
 						textFieldsAM[i].setBackground(amModule.getColor());
 					} else {
 						textFieldsAM[i].setText("");
@@ -392,8 +428,17 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 					}
 					if (jour.getAfternoon() != null) {
 						Module pmModule = jour.getAfternoon();
+						ArrayList<Seance> seanceList = pmModule.getSeances();
+						Seance seance = pmModule.getSeance(
+								new Date(year, month - 1, Integer
+										.parseInt(dayLabels[i].getText())),
+								Seance.PM);
+						Collections.sort(seanceList);
+						int numSeance = seanceList.indexOf(seance) + 1;
 						textFieldsPM[i].setText(pmModule.getAbreviation() + " "
-								+ pmModule.getDuree() + "h");
+								+ pmModule.getDuree() + "h" + " "
+								+ numSeance + "/"
+								+ pmModule.getNbSeance());
 						textFieldsPM[i].setBackground(pmModule.getColor());
 					} else {
 						textFieldsPM[i].setText("");

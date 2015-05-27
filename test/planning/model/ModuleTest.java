@@ -74,19 +74,19 @@ public class ModuleTest {
 	}
 
 	@Test
-	public void testGetNombre() {
+	public void testGetNbSeance() {
 		Module module = new Module();
 		int nombre = 30;
-		module.setNombre(nombre);
-		assertEquals(nombre, module.getNombre());
+		module.setNbSeance(nombre);
+		assertEquals(nombre, module.getNbSeance());
 	}
 
 	@Test
-	public void testSetNombre() {
+	public void testSetNbSeance() {
 		Module module = new Module();
 		int nombre = 30;
-		module.setNombre(nombre);
-		assertEquals(nombre, module.getNombre());
+		module.setNbSeance(nombre);
+		assertEquals(nombre, module.getNbSeance());
 	}
 
 }

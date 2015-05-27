@@ -2,6 +2,8 @@ package planning.model;
 
 import java.awt.Color;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Module
@@ -12,9 +14,16 @@ public class Module implements Serializable{
 	private String nom;
 	private String abreviation;
 	private Color color;
-	private int nombre;
+	private int nbSeance;
 	private int duree;
+	private ArrayList<Seance> seances;
 	
+	public ArrayList<Seance> getSeances() {
+		return seances;
+	}
+	public void setSeances(ArrayList<Seance> seances) {
+		this.seances = seances;
+	}
 	public int getDuree() {
 		return duree;
 	}
@@ -39,12 +48,21 @@ public class Module implements Serializable{
 	public void setColor(Color color) {
 		this.color = color;
 	}
-	public int getNombre() {
-		return nombre;
+	public int getNbSeance() {
+		return nbSeance;
 	}
-	public void setNombre(int nombre) {
-		this.nombre = nombre;
+	public void setNbSeance(int nbSeance) {
+		this.nbSeance = nbSeance;
 	}
 	
+	public Seance getSeance(Date date, int time){
+		Seance seance = null;
+		for (int i = 0; i < seances.size(); i++) {
+			if (seances.get(i).getDate().getTime() == date.getTime() && seances.get(i).getTime() == time) {
+				seance = seances.get(i);
+			}
+		}
+		return seance;
+	}
 	
 }
