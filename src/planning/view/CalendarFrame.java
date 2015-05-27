@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Choice;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.ScrollPane;
@@ -12,12 +13,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -40,21 +45,25 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 
+import jdk.internal.jfr.events.FileWriteEvent;
+
 import planning.model.Jour;
 import planning.model.Module;
 import planning.model.MyCalendar;
 import planning.model.Planning;
 import planning.model.Seance;
 
-public class CalendarFrame extends JFrame implements ActionListener, Observer {
+public class CalendarFrame extends JFrame implements ActionListener, Observer,
+		ItemListener {
 	private final static String PATH_STRING = "C:/Users/piao/Desktop/mycalendar.dat";
 	JMenuBar menubar = new JMenuBar();
 	JMenu fileMenu = new JMenu("File");
 	JMenu editMenu = new JMenu("Edit");
 	JMenu toolMenu = new JMenu("Tool");
 	JMenu helpMenu = new JMenu("Help");
-	JMenuItem openItem = new JMenuItem("open");
-	JMenuItem saveItem = new JMenuItem("save");
+	JMenuItem openItem = new JMenuItem("Open");
+	JMenuItem saveItem = new JMenuItem("Save");
+	JMenuItem exportItem = new JMenuItem("Export HTML");
 	Choice yearChoice = new Choice();
 	Choice monthChoice = new Choice();
 	JButton jButton1 = new JButton("OK");
@@ -96,6 +105,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 		this.setJMenuBar(menubar);
 		fileMenu.add(openItem);
 		fileMenu.add(saveItem);
+		fileMenu.add(exportItem);
 		menubar.add(fileMenu);
 		menubar.add(editMenu);
 		menubar.add(toolMenu);
@@ -116,6 +126,8 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 		}
 		yearChoice.select(String.valueOf(year));
 		monthChoice.select(String.valueOf(month));
+		yearChoice.addItemListener(this);
+		monthChoice.addItemListener(this);
 
 		calendar = new MyCalendar();
 		calendar.setYear(year);
@@ -153,6 +165,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 		jButton1.addActionListener(this);
 		saveItem.addActionListener(this);
 		openItem.addActionListener(this);
+		exportItem.addActionListener(this);
 		JPanel pNorth = new JPanel();
 		JPanel pSouth = new JPanel();
 		pNorth.add(yearChoice);
@@ -205,8 +218,19 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-
+		} else if (e.getSource() == exportItem) {
+			JFileChooser fileChooser = new JFileChooser();
+			File file = new File("planning.html");
+			fileChooser.setSelectedFile(file);
+			fileChooser.showSaveDialog(this);
+			try {
+				exportEnHtml(fileChooser.getSelectedFile().getAbsolutePath());
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
+
 	}
 
 	private class onMouseLisener implements MouseListener {
@@ -271,9 +295,11 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 		jPanel.add(moduleChoice);
 		jPanel.add(new JLabel("Title"));
 		JTextField titleTextField = new JTextField();
+		titleTextField.setEditable(false);
 		jPanel.add(titleTextField);
 		jPanel.add(new JLabel("Nombre"));
 		JTextField nombreTextField = new JTextField();
+		nombreTextField.setEditable(false);
 		jPanel.add(nombreTextField);
 		editButton = new JButton("Edit");
 		jPanel.add(editButton);
@@ -329,6 +355,16 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 					seance.setDate(date);
 					module.getSeances().add(seance);
 					calendar.setJour(onClickedIndex, jour);
+				} else {
+					JDialog alertDialog = new JDialog();
+					alertDialog.setTitle("Error!");
+					Container container = alertDialog.getContentPane();
+					JLabel alertLabel = new JLabel(
+							"Le nombre de seance est depasse.");
+					alertLabel.setBackground(Color.RED);
+					container.add(alertLabel);
+					alertDialog.setBounds(500, 300, 250, 100);
+					alertDialog.setVisible(true);
 				}
 				dialog.setVisible(false);
 				calendar.update();
@@ -369,24 +405,26 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 				if (e.getSource() == textFieldsAM[index]) {
 					if (calendar.getJour(index) != null) {
 						if (calendar.getJour(index).getMorning() != null) {
-							Module module = calendar.getJour(index).getMorning();
+							Module module = calendar.getJour(index)
+									.getMorning();
 							Seance seance = module.getSeance(
 									new Date(year, month - 1, Integer
-											.parseInt(dayLabels[index].getText())),
-									Seance.AM);
+											.parseInt(dayLabels[index]
+													.getText())), Seance.AM);
 							module.getSeances().remove(seance);
 							calendar.getJour(index).setMorning(null);
-							
+
 						}
 					}
 				} else if (e.getSource() == textFieldsPM[index]) {
 					if (calendar.getJour(index) != null) {
 						if (calendar.getJour(index).getAfternoon() != null) {
-							Module module = calendar.getJour(index).getAfternoon();
+							Module module = calendar.getJour(index)
+									.getAfternoon();
 							Seance seance = module.getSeance(
 									new Date(year, month - 1, Integer
-											.parseInt(dayLabels[index].getText())),
-									Seance.PM);
+											.parseInt(dayLabels[index]
+													.getText())), Seance.PM);
 							module.getSeances().remove(seance);
 							calendar.getJour(index).setAfternoon(null);
 						}
@@ -422,9 +460,8 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 						Collections.sort(seanceList);
 						int numSeance = seanceList.indexOf(seance) + 1;
 						textFieldsAM[i].setText(amModule.getAbreviation() + " "
-								+ amModule.getDuree() + "h" + " "
-								+ numSeance + "/"
-								+ amModule.getNbSeance());
+								+ amModule.getDuree() + "h" + " " + numSeance
+								+ "/" + amModule.getNbSeance());
 						textFieldsAM[i].setBackground(amModule.getColor());
 					} else {
 						textFieldsAM[i].setText("");
@@ -440,9 +477,8 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 						Collections.sort(seanceList);
 						int numSeance = seanceList.indexOf(seance) + 1;
 						textFieldsPM[i].setText(pmModule.getAbreviation() + " "
-								+ pmModule.getDuree() + "h" + " "
-								+ numSeance + "/"
-								+ pmModule.getNbSeance());
+								+ pmModule.getDuree() + "h" + " " + numSeance
+								+ "/" + pmModule.getNbSeance());
 						textFieldsPM[i].setBackground(pmModule.getColor());
 					} else {
 						textFieldsPM[i].setText("");
@@ -459,11 +495,12 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 			}
 		}
 	}
-	
-	public void deSerialiser(File file) throws IOException, ClassNotFoundException{
+
+	public void deSerialiser(File file) throws IOException,
+			ClassNotFoundException {
 		FileInputStream fis = new FileInputStream(file);
 		ObjectInputStream ois = new ObjectInputStream(fis);
-		planning  = (Planning) ois.readObject();
+		planning = (Planning) ois.readObject();
 		calendarList = planning.getCalendarList();
 		modules = planning.getModules();
 		month = Integer.parseInt(monthChoice.getSelectedItem());
@@ -475,5 +512,223 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer {
 		}
 		calendar.update();
 		ois.close();
+	}
+
+	
+	/**
+	 * export planning en HTML
+	 * @param path : destination file
+	 * @throws IOException
+	 */
+	public void exportEnHtml(String path) throws IOException {
+		FileWriter fileWriter = new FileWriter(new File(path));
+		BufferedWriter bw = new BufferedWriter(fileWriter);
+		StringBuffer sBuffer = new StringBuffer();
+		sBuffer.append("<html><body>");
+		sBuffer.append("<h1 align=" + "center" + ">");
+		sBuffer.append(planning.getFormation().getNom() + " ");
+		sBuffer.append(year + "-" + month);
+		sBuffer.append("</h1>");
+		sBuffer.append("<table border=" + "1" + ">");
+		sBuffer.append("<tr height=30px>");
+		for (int i = 0; i < weeks.length; i++) {
+			sBuffer.append("<th width=" + "100px" + ">");
+			sBuffer.append(weeks[i]);
+			sBuffer.append("</th>");
+		}
+		sBuffer.append("</tr>");
+
+		sBuffer.append("<tr height=30px>");
+		for (int i = 0; i < weeks.length; i++) {
+			sBuffer.append("<td align=" + "center" + ">");
+			if (day[i] == null) {
+				sBuffer.append("");
+			} else {
+				sBuffer.append(day[i]);
+			}
+
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+
+		sBuffer.append("<tr height=30px>");
+		for (int i = 0; i < weeks.length; i++) {
+			sBuffer.append("<td align=" + "center");
+			sBuffer.append(" bgcolor=" + getHxColor(textFieldsAM[i].getBackground()) + ">");
+			sBuffer.append(textFieldsAM[i].getText());
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+		
+		sBuffer.append("<tr height=30px>");
+		for (int i = 0; i < weeks.length; i++) {
+			sBuffer.append("<td align=" + "center");
+			sBuffer.append(" bgcolor=" + getHxColor(textFieldsPM[i].getBackground()) + ">");
+			sBuffer.append(textFieldsPM[i].getText());
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+		
+		sBuffer.append("<tr height=30px>");
+		for (int i = 7; i < weeks.length + 7; i++) {
+			sBuffer.append("<td align=" + "center" + ">");
+			if (day[i] == null) {
+				sBuffer.append("");
+			} else {
+				sBuffer.append(day[i]);
+			}
+
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+		
+		sBuffer.append("<tr height=30px>");
+		for (int i = 7; i < weeks.length + 7; i++) {
+			sBuffer.append("<td align=" + "center");
+			sBuffer.append(" bgcolor=" + getHxColor(textFieldsAM[i].getBackground()) + ">");
+			sBuffer.append(textFieldsAM[i].getText());
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+		
+		sBuffer.append("<tr height=30px>");
+		for (int i = 7; i < weeks.length + 7; i++) {
+			sBuffer.append("<td align=" + "center");
+			sBuffer.append(" bgcolor=" + getHxColor(textFieldsPM[i].getBackground()) + ">");
+			sBuffer.append(textFieldsPM[i].getText());
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+		
+		sBuffer.append("<tr height=30px>");
+		for (int i = 14; i < weeks.length + 14; i++) {
+			sBuffer.append("<td align=" + "center" + ">");
+			if (day[i] == null) {
+				sBuffer.append("");
+			} else {
+				sBuffer.append(day[i]);
+			}
+
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+		
+		sBuffer.append("<tr height=30px>");
+		for (int i = 14; i < weeks.length + 14; i++) {
+			sBuffer.append("<td align=" + "center");
+			sBuffer.append(" bgcolor=" + getHxColor(textFieldsAM[i].getBackground()) + ">");
+			sBuffer.append(textFieldsAM[i].getText());
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+		
+		sBuffer.append("<tr height=30px>");
+		for (int i = 14; i < weeks.length + 14; i++) {
+			sBuffer.append("<td align=" + "center");
+			sBuffer.append(" bgcolor=" + getHxColor(textFieldsPM[i].getBackground()) + ">");
+			sBuffer.append(textFieldsPM[i].getText());
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+		
+		sBuffer.append("<tr height=30px>");
+		for (int i = 21; i < weeks.length + 21; i++) {
+			sBuffer.append("<td align=" + "center" + ">");
+			if (day[i] == null) {
+				sBuffer.append("");
+			} else {
+				sBuffer.append(day[i]);
+			}
+
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+		
+		sBuffer.append("<tr height=30px>");
+		for (int i = 21; i < weeks.length + 21; i++) {
+			sBuffer.append("<td align=" + "center");
+			sBuffer.append(" bgcolor=" + getHxColor(textFieldsAM[i].getBackground()) + ">");
+			sBuffer.append(textFieldsAM[i].getText());
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+		
+		sBuffer.append("<tr height=30px>");
+		for (int i = 21; i < weeks.length + 21; i++) {
+			sBuffer.append("<td align=" + "center");
+			sBuffer.append(" bgcolor=" + getHxColor(textFieldsPM[i].getBackground()) + ">");
+			sBuffer.append(textFieldsPM[i].getText());
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+		
+		sBuffer.append("<tr height=30px>");
+		for (int i = 28; i < weeks.length + 28; i++) {
+			sBuffer.append("<td align=" + "center" + ">");
+			if (day[i] == null) {
+				sBuffer.append("");
+			} else {
+				sBuffer.append(day[i]);
+			}
+
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+		
+		sBuffer.append("<tr height=30px>");
+		for (int i = 28; i < weeks.length + 28; i++) {
+			sBuffer.append("<td align=" + "center");
+			sBuffer.append(" bgcolor=" + getHxColor(textFieldsAM[i].getBackground()) + ">");
+			sBuffer.append(textFieldsAM[i].getText());
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+		
+		sBuffer.append("<tr height=30px>");
+		for (int i = 28; i < weeks.length + 28; i++) {
+			sBuffer.append("<td align=" + "center");
+			sBuffer.append(" bgcolor=" + getHxColor(textFieldsPM[i].getBackground()) + ">");
+			sBuffer.append(textFieldsPM[i].getText());
+			sBuffer.append("</td>");
+		}
+		sBuffer.append("</tr>");
+
+		sBuffer.append("</table></body></html>");
+		bw.write(sBuffer.toString());
+		bw.close();
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getSource() == yearChoice) {
+			year = Integer.parseInt(e.getItem().toString());
+		} else if (e.getSource() == monthChoice) {
+			month = Integer.parseInt(e.getItem().toString());
+		}
+
+	}
+
+	/**
+	 * convert color to hex
+	 * @param color
+	 * @return
+	 */
+	public String getHxColor(Color color) {
+		String R, G, B;
+		StringBuffer sb = new StringBuffer();
+		R = Integer.toHexString(color.getRed());
+		G = Integer.toHexString(color.getGreen());
+		B = Integer.toHexString(color.getBlue());
+
+		R = R.length() == 1 ? "0" + R : R;
+		G = G.length() == 1 ? "0" + G : G;
+		B = B.length() == 1 ? "0" + B : B;
+
+		sb.append("#");
+		sb.append(R);
+		sb.append(G);
+		sb.append(B);
+		return sb.toString();
+
 	}
 }

@@ -102,4 +102,8 @@ public class Planning extends Observable implements Serializable{
 	public ArrayList<Module> getModules(){
 		return modules;
 	}
+	
+	public Formation getFormation(){
+		return formation;
+	}
 }
