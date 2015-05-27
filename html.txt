@@ -1,0 +1,45 @@
+<html>
+<body>
+<h1 align="center">MIAGE 2014/2015<h1/>
+<table border="1">
+  <tr>
+    <th width="100px">Lundi</th>
+    <th width="100px">Mardi</th>
+    <th width="100px">Mercredi</th>
+    <th width="100px">Jeudi</th>
+    <th width="100px">Vendredi</th>
+    <th width="100px">Samedi</th>
+    <th width="100px">Dimanche</th>
+  </tr>
+  <tr>
+    <td align="center">1</td>
+    <td align="center">2</td>
+    <td align="center">3</td>
+    <td align="center">4</td>
+    <td align="center">5</td>
+    <td align="center">6</td>
+    <td align="center">7</td>
+  </tr>
+  <tr>
+    <td align="center">n</td>
+    <td align="center"></td>
+    <td align="center"></td>
+    <td align="center"></td>
+    <td align="center"></td>
+    <td align="center"></td>
+    <td align="center"></td>
+  </tr>
+  <tr>
+    <td align="center">n</td>
+    <td align="center"></td>
+    <td align="center"></td>
+    <td align="center"></td>
+    <td align="center"></td>
+    <td align="center"></td>
+    <td align="center"></td>
+  </tr>
+  
+</table>
+
+</body>
+</html>
