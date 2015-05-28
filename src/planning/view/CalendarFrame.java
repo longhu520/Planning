@@ -30,11 +30,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Vector;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -48,20 +48,24 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
+import javax.swing.undo.UndoableEdit;
 
-import jdk.internal.jfr.events.FileWriteEvent;
 import planning.model.Jour;
 import planning.model.Module;
 import planning.model.MyCalendar;
 import planning.model.Planning;
 import planning.model.Seance;
+import planning.model.UndoableModel;
 
+/**
+ * CalendarFrame
+ * @author Piao
+ *
+ */
 public class CalendarFrame extends JFrame implements ActionListener, Observer,
-		ItemListener {
-	private final static String PATH_STRING = "C:/Users/piao/Desktop/mycalendar.dat";
+		ItemListener, UndoableModel {
 	JMenuBar menubar = new JMenuBar();
 	JMenu fileMenu = new JMenu("File");
 	JMenu editMenu = new JMenu("Edit");
@@ -572,6 +576,12 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 		}
 	}
 
+	/**
+	 * read object from file
+	 * @param file
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	public void deSerialiser(File file) throws IOException,
 			ClassNotFoundException {
 		FileInputStream fis = new FileInputStream(file);
@@ -819,5 +829,27 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 		return sb.toString();
 
 	}
+	
+	private Vector listeners = new Vector();
+
+	@Override
+	public void addUndoableEditListener(UndoableEditListener listener) {
+		listeners.add(listener);
+	}
+
+	@Override
+	public void removeUndoableEditListener(UndoableEditListener listener) {
+		listeners.remove(listener);
+	}
+	
+	private void fireUndoableEditListener(UndoableEdit edit){
+		UndoableEditEvent event = new UndoableEditEvent(this, edit);
+		Iterator iter = listeners.iterator();
+		while (iter.hasNext()) {
+			((UndoableEditListener)iter.next()).undoableEditHappened(event);
+			
+		}
+	}
+	
 
 }
