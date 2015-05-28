@@ -376,6 +376,8 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 	private void addSeance(Module module, int onClickedIndex) {
 		if (module.getSeances().size() < module.getNbSeance()) {
 			Seance seance = new Seance(module);
+			Date date = new Date(year, month - 1,
+					Integer.parseInt(dayLabels[onClickedIndex].getText()));
 			Jour jour;
 			if (calendar.getJour(onClickedIndex) == null) {
 				jour = new Jour();
@@ -383,15 +385,23 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 				jour = calendar.getJour(onClickedIndex);
 			}
 			if (clickedTextField == textFieldsAM[onClickedIndex]) {
+				if (jour.getMorning() != null) {
+					Module oldModule = jour.getMorning();
+					Seance oldSeance = oldModule.getSeance(date, Seance.AM);
+					oldModule.getSeances().remove(oldSeance);
+				}
 				jour.setMorning(module);
 				seance.setTime(Seance.AM);
 			}
 			if (clickedTextField == textFieldsPM[onClickedIndex]) {
+				if (jour.getAfternoon() != null) {
+					Module oldModule = jour.getAfternoon();
+					Seance oldSeance = oldModule.getSeance(date, Seance.PM);
+					oldModule.getSeances().remove(oldSeance);
+				}
 				jour.setAfternoon(module);
 				seance.setTime(Seance.PM);
 			}
-			Date date = new Date(year, month - 1,
-					Integer.parseInt(dayLabels[onClickedIndex].getText()));
 			seance.setDate(date);
 			module.getSeances().add(seance);
 			calendar.setJour(onClickedIndex, jour);
