@@ -12,8 +12,11 @@ public class Formation implements Serializable{
 	private String nom;
 	private int heures;
 	private int jours;
-	private ArrayList<Module> modules = new ArrayList<Module>();
+	private ArrayList<Module> modules;
 	
+	public void setModules(ArrayList<Module> modules) {
+		this.modules = modules;
+	}
 	public String getNom() {
 		return nom;
 	}

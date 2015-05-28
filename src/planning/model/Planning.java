@@ -11,7 +11,6 @@ import java.util.Observable;
 
 public class Planning extends Observable implements Serializable{
 	private Formation formation;
-	private ArrayList<Module> modules;
 	private ArrayList<MyCalendar> calendarList;
 	
 	public ArrayList<MyCalendar> getCalendarList() {
@@ -27,7 +26,7 @@ public class Planning extends Observable implements Serializable{
 		formation.setNom("MIAGE");
 		calendarList = new ArrayList<MyCalendar>();
 		
-		modules = new ArrayList<Module>();
+		ArrayList<Module> modules = new ArrayList<Module>();
 		Module module1 = new Module();
 		module1.setNom("Processus stochastiques");
 		module1.setAbreviation("Stochastique");
@@ -97,11 +96,10 @@ public class Planning extends Observable implements Serializable{
 		ArrayList<Seance> seances7 = new ArrayList<Seance>(module7.getNbSeance());
 		module7.setSeances(seances7);
 		modules.add(module7);
+		
+		formation.setModules(modules);
 	}
 	
-	public ArrayList<Module> getModules(){
-		return modules;
-	}
 	
 	public Formation getFormation(){
 		return formation;

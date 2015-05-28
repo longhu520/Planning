@@ -33,6 +33,8 @@ import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -44,9 +46,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 
 import jdk.internal.jfr.events.FileWriteEvent;
-
 import planning.model.Jour;
 import planning.model.Module;
 import planning.model.MyCalendar;
@@ -64,6 +70,8 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 	JMenuItem openItem = new JMenuItem("Open");
 	JMenuItem saveItem = new JMenuItem("Save");
 	JMenuItem exportItem = new JMenuItem("Export HTML");
+	JMenuItem undoItem = new JMenuItem("Undo");
+	JMenuItem redoItem = new JMenuItem("Redo");
 	Choice yearChoice = new Choice();
 	Choice monthChoice = new Choice();
 	JButton jButton1 = new JButton("OK");
@@ -88,15 +96,17 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 	private int onClickedIndex;
 	private ArrayList<MyCalendar> calendarList;
 	private JPanel pCenter;
+	private UndoManager undoManager;
 
 	public CalendarFrame() {
 		planning = new Planning();
-		modules = planning.getModules();
+		modules = planning.getFormation().getModules();
 		calendarList = planning.getCalendarList();
 		moduleNames = new String[modules.size()];
 		for (int i = 0; i < modules.size(); i++) {
 			moduleNames[i] = modules.get(i).getNom();
 		}
+		undoManager = new UndoManager();
 		initView();
 
 	}
@@ -106,6 +116,8 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 		fileMenu.add(openItem);
 		fileMenu.add(saveItem);
 		fileMenu.add(exportItem);
+		editMenu.add(undoItem);
+		editMenu.add(redoItem);
 		menubar.add(fileMenu);
 		menubar.add(editMenu);
 		menubar.add(toolMenu);
@@ -143,6 +155,8 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 			dayLabels[i] = new JLabel("", JLabel.CENTER);
 			textFieldsAM[i] = new JTextField();
 			textFieldsPM[i] = new JTextField();
+			textFieldsAM[i].getDocument().addUndoableEditListener(undoManager);
+			textFieldsPM[i].getDocument().addUndoableEditListener(undoManager);
 			textFieldsAM[i].setEditable(false);
 			textFieldsPM[i].setEditable(false);
 			textFieldsAM[i].setBackground(Color.WHITE);
@@ -166,6 +180,9 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 		saveItem.addActionListener(this);
 		openItem.addActionListener(this);
 		exportItem.addActionListener(this);
+		undoItem.addActionListener(this);
+		redoItem.addActionListener(this);
+
 		JPanel pNorth = new JPanel();
 		JPanel pSouth = new JPanel();
 		pNorth.add(yearChoice);
@@ -229,6 +246,8 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		} else if (e.getSource() == undoItem) {
+			
 		}
 
 	}
@@ -502,7 +521,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 		ObjectInputStream ois = new ObjectInputStream(fis);
 		planning = (Planning) ois.readObject();
 		calendarList = planning.getCalendarList();
-		modules = planning.getModules();
+		modules = planning.getFormation().getModules();
 		month = Integer.parseInt(monthChoice.getSelectedItem());
 		year = Integer.parseInt(yearChoice.getSelectedItem());
 		MyCalendar mCalendar = new MyCalendar(year, month);
@@ -514,10 +533,11 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 		ois.close();
 	}
 
-	
 	/**
 	 * export planning en HTML
-	 * @param path : destination file
+	 * 
+	 * @param path
+	 *            : destination file
 	 * @throws IOException
 	 */
 	public void exportEnHtml(String path) throws IOException {
@@ -554,21 +574,23 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 		sBuffer.append("<tr height=30px>");
 		for (int i = 0; i < weeks.length; i++) {
 			sBuffer.append("<td align=" + "center");
-			sBuffer.append(" bgcolor=" + getHxColor(textFieldsAM[i].getBackground()) + ">");
+			sBuffer.append(" bgcolor="
+					+ getHxColor(textFieldsAM[i].getBackground()) + ">");
 			sBuffer.append(textFieldsAM[i].getText());
 			sBuffer.append("</td>");
 		}
 		sBuffer.append("</tr>");
-		
+
 		sBuffer.append("<tr height=30px>");
 		for (int i = 0; i < weeks.length; i++) {
 			sBuffer.append("<td align=" + "center");
-			sBuffer.append(" bgcolor=" + getHxColor(textFieldsPM[i].getBackground()) + ">");
+			sBuffer.append(" bgcolor="
+					+ getHxColor(textFieldsPM[i].getBackground()) + ">");
 			sBuffer.append(textFieldsPM[i].getText());
 			sBuffer.append("</td>");
 		}
 		sBuffer.append("</tr>");
-		
+
 		sBuffer.append("<tr height=30px>");
 		for (int i = 7; i < weeks.length + 7; i++) {
 			sBuffer.append("<td align=" + "center" + ">");
@@ -581,25 +603,27 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 			sBuffer.append("</td>");
 		}
 		sBuffer.append("</tr>");
-		
+
 		sBuffer.append("<tr height=30px>");
 		for (int i = 7; i < weeks.length + 7; i++) {
 			sBuffer.append("<td align=" + "center");
-			sBuffer.append(" bgcolor=" + getHxColor(textFieldsAM[i].getBackground()) + ">");
+			sBuffer.append(" bgcolor="
+					+ getHxColor(textFieldsAM[i].getBackground()) + ">");
 			sBuffer.append(textFieldsAM[i].getText());
 			sBuffer.append("</td>");
 		}
 		sBuffer.append("</tr>");
-		
+
 		sBuffer.append("<tr height=30px>");
 		for (int i = 7; i < weeks.length + 7; i++) {
 			sBuffer.append("<td align=" + "center");
-			sBuffer.append(" bgcolor=" + getHxColor(textFieldsPM[i].getBackground()) + ">");
+			sBuffer.append(" bgcolor="
+					+ getHxColor(textFieldsPM[i].getBackground()) + ">");
 			sBuffer.append(textFieldsPM[i].getText());
 			sBuffer.append("</td>");
 		}
 		sBuffer.append("</tr>");
-		
+
 		sBuffer.append("<tr height=30px>");
 		for (int i = 14; i < weeks.length + 14; i++) {
 			sBuffer.append("<td align=" + "center" + ">");
@@ -612,25 +636,27 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 			sBuffer.append("</td>");
 		}
 		sBuffer.append("</tr>");
-		
+
 		sBuffer.append("<tr height=30px>");
 		for (int i = 14; i < weeks.length + 14; i++) {
 			sBuffer.append("<td align=" + "center");
-			sBuffer.append(" bgcolor=" + getHxColor(textFieldsAM[i].getBackground()) + ">");
+			sBuffer.append(" bgcolor="
+					+ getHxColor(textFieldsAM[i].getBackground()) + ">");
 			sBuffer.append(textFieldsAM[i].getText());
 			sBuffer.append("</td>");
 		}
 		sBuffer.append("</tr>");
-		
+
 		sBuffer.append("<tr height=30px>");
 		for (int i = 14; i < weeks.length + 14; i++) {
 			sBuffer.append("<td align=" + "center");
-			sBuffer.append(" bgcolor=" + getHxColor(textFieldsPM[i].getBackground()) + ">");
+			sBuffer.append(" bgcolor="
+					+ getHxColor(textFieldsPM[i].getBackground()) + ">");
 			sBuffer.append(textFieldsPM[i].getText());
 			sBuffer.append("</td>");
 		}
 		sBuffer.append("</tr>");
-		
+
 		sBuffer.append("<tr height=30px>");
 		for (int i = 21; i < weeks.length + 21; i++) {
 			sBuffer.append("<td align=" + "center" + ">");
@@ -643,25 +669,27 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 			sBuffer.append("</td>");
 		}
 		sBuffer.append("</tr>");
-		
+
 		sBuffer.append("<tr height=30px>");
 		for (int i = 21; i < weeks.length + 21; i++) {
 			sBuffer.append("<td align=" + "center");
-			sBuffer.append(" bgcolor=" + getHxColor(textFieldsAM[i].getBackground()) + ">");
+			sBuffer.append(" bgcolor="
+					+ getHxColor(textFieldsAM[i].getBackground()) + ">");
 			sBuffer.append(textFieldsAM[i].getText());
 			sBuffer.append("</td>");
 		}
 		sBuffer.append("</tr>");
-		
+
 		sBuffer.append("<tr height=30px>");
 		for (int i = 21; i < weeks.length + 21; i++) {
 			sBuffer.append("<td align=" + "center");
-			sBuffer.append(" bgcolor=" + getHxColor(textFieldsPM[i].getBackground()) + ">");
+			sBuffer.append(" bgcolor="
+					+ getHxColor(textFieldsPM[i].getBackground()) + ">");
 			sBuffer.append(textFieldsPM[i].getText());
 			sBuffer.append("</td>");
 		}
 		sBuffer.append("</tr>");
-		
+
 		sBuffer.append("<tr height=30px>");
 		for (int i = 28; i < weeks.length + 28; i++) {
 			sBuffer.append("<td align=" + "center" + ">");
@@ -674,20 +702,22 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 			sBuffer.append("</td>");
 		}
 		sBuffer.append("</tr>");
-		
+
 		sBuffer.append("<tr height=30px>");
 		for (int i = 28; i < weeks.length + 28; i++) {
 			sBuffer.append("<td align=" + "center");
-			sBuffer.append(" bgcolor=" + getHxColor(textFieldsAM[i].getBackground()) + ">");
+			sBuffer.append(" bgcolor="
+					+ getHxColor(textFieldsAM[i].getBackground()) + ">");
 			sBuffer.append(textFieldsAM[i].getText());
 			sBuffer.append("</td>");
 		}
 		sBuffer.append("</tr>");
-		
+
 		sBuffer.append("<tr height=30px>");
 		for (int i = 28; i < weeks.length + 28; i++) {
 			sBuffer.append("<td align=" + "center");
-			sBuffer.append(" bgcolor=" + getHxColor(textFieldsPM[i].getBackground()) + ">");
+			sBuffer.append(" bgcolor="
+					+ getHxColor(textFieldsPM[i].getBackground()) + ">");
 			sBuffer.append(textFieldsPM[i].getText());
 			sBuffer.append("</td>");
 		}
@@ -710,6 +740,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 
 	/**
 	 * convert color to hex
+	 * 
 	 * @param color
 	 * @return
 	 */
@@ -731,4 +762,5 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 		return sb.toString();
 
 	}
+
 }
