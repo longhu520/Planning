@@ -40,8 +40,6 @@ public class MyCalendar extends Observable implements Serializable{
 
 	public void setMonth(int month) {
 		this.month = month;
-		setChanged();
-		notifyObservers(this);
 	}
 
 	public int getMonth() {
@@ -58,14 +56,10 @@ public class MyCalendar extends Observable implements Serializable{
 	
 	public void setJour(int i, Jour jour){
 		jours[i] = jour;
-//		setChanged();
-//		notifyObservers(this);
 	}
 
 	public void setJours(Jour[] jours) {
 		this.jours = jours;
-		setChanged();
-		notifyObservers(this);
 	}
 
 	public String[] getCalendar() {

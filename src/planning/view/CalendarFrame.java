@@ -97,6 +97,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 	private ArrayList<MyCalendar> calendarList;
 	private JPanel pCenter;
 	private UndoManager undoManager;
+	private Module copyModule;
 
 	public CalendarFrame() {
 		planning = new Planning();
@@ -247,7 +248,7 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 				e1.printStackTrace();
 			}
 		} else if (e.getSource() == undoItem) {
-			
+
 		}
 
 	}
@@ -353,40 +354,8 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 			public void actionPerformed(ActionEvent e) {
 				int indexChoice = moduleChoice.getSelectedIndex();
 				Module module = modules.get(indexChoice);
-				if (module.getSeances().size() < module.getNbSeance()) {
-					Seance seance = new Seance(module);
-					Jour jour;
-					if (calendar.getJour(onClickedIndex) == null) {
-						jour = new Jour();
-					} else {
-						jour = calendar.getJour(onClickedIndex);
-					}
-					if (clickedTextField == textFieldsAM[onClickedIndex]) {
-						jour.setMorning(module);
-						seance.setTime(Seance.AM);
-					}
-					if (clickedTextField == textFieldsPM[onClickedIndex]) {
-						jour.setAfternoon(module);
-						seance.setTime(Seance.PM);
-					}
-					Date date = new Date(year, month - 1, Integer
-							.parseInt(dayLabels[onClickedIndex].getText()));
-					seance.setDate(date);
-					module.getSeances().add(seance);
-					calendar.setJour(onClickedIndex, jour);
-				} else {
-					JDialog alertDialog = new JDialog();
-					alertDialog.setTitle("Error!");
-					Container container = alertDialog.getContentPane();
-					JLabel alertLabel = new JLabel(
-							"Le nombre de seance est depasse.");
-					alertLabel.setBackground(Color.RED);
-					container.add(alertLabel);
-					alertDialog.setBounds(500, 300, 250, 100);
-					alertDialog.setVisible(true);
-				}
+				addSeance(module, onClickedIndex);
 				dialog.setVisible(false);
-				calendar.update();
 			}
 		});
 		cancerButton.addActionListener(new ActionListener() {
@@ -396,15 +365,59 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 				dialog.setVisible(false);
 			}
 		});
+	}
 
+	/**
+	 * Placer une seance sur un jour choisi
+	 * 
+	 * @param module
+	 * @param onClickedIndex
+	 */
+	private void addSeance(Module module, int onClickedIndex) {
+		if (module.getSeances().size() < module.getNbSeance()) {
+			Seance seance = new Seance(module);
+			Jour jour;
+			if (calendar.getJour(onClickedIndex) == null) {
+				jour = new Jour();
+			} else {
+				jour = calendar.getJour(onClickedIndex);
+			}
+			if (clickedTextField == textFieldsAM[onClickedIndex]) {
+				jour.setMorning(module);
+				seance.setTime(Seance.AM);
+			}
+			if (clickedTextField == textFieldsPM[onClickedIndex]) {
+				jour.setAfternoon(module);
+				seance.setTime(Seance.PM);
+			}
+			Date date = new Date(year, month - 1,
+					Integer.parseInt(dayLabels[onClickedIndex].getText()));
+			seance.setDate(date);
+			module.getSeances().add(seance);
+			calendar.setJour(onClickedIndex, jour);
+			calendar.update();
+		} else {
+			JDialog alertDialog = new JDialog();
+			alertDialog.setTitle("Error!");
+			Container container = alertDialog.getContentPane();
+			JLabel alertLabel = new JLabel("Le nombre de seance est depasse.");
+			alertLabel.setBackground(Color.RED);
+			container.add(alertLabel);
+			alertDialog.setBounds(500, 300, 250, 100);
+			alertDialog.setVisible(true);
+		}
 	}
 
 	private void popUpMenu(final MouseEvent e, final int index) {
 		JPopupMenu jPopupMenu = new JPopupMenu();
 		JMenuItem editItem = new JMenuItem("Edit");
 		JMenuItem delMenuItem = new JMenuItem("Delete");
+		JMenuItem copyItem = new JMenuItem("Copy");
+		JMenuItem pasteItem = new JMenuItem("Paste");
 		jPopupMenu.add(editItem);
 		jPopupMenu.add(delMenuItem);
+		jPopupMenu.add(copyItem);
+		jPopupMenu.add(pasteItem);
 		if (e.getSource() == textFieldsAM[index]) {
 			jPopupMenu.show(textFieldsAM[index], e.getX(), e.getY());
 		} else if (e.getSource() == textFieldsPM[index]) {
@@ -450,6 +463,40 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 					}
 				}
 				calendar.update();
+			}
+		});
+		copyItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e3) {
+				if (e.getSource() == textFieldsAM[index]) {
+					if (calendar.getJour(index) != null) {
+						if (calendar.getJour(index).getMorning() != null) {
+							copyModule = calendar.getJour(index).getMorning();
+						}
+					}
+				} else if (e.getSource() == textFieldsPM[index]) {
+					if (calendar.getJour(index) != null) {
+						if (calendar.getJour(index).getAfternoon() != null) {
+							copyModule = calendar.getJour(index)
+									.getAfternoon();
+						}
+					}
+				}
+			}
+		});
+		pasteItem.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e4) {
+				if (copyModule != null) {
+					if (e.getSource() == textFieldsAM[index]) {
+						clickedTextField = textFieldsAM[index];
+					}else if (e.getSource() == textFieldsPM[index]) {
+						clickedTextField = textFieldsPM[index];
+					}
+					addSeance(copyModule, index);
+				}
 			}
 		});
 	}
