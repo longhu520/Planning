@@ -79,6 +79,8 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 	Choice yearChoice = new Choice();
 	Choice monthChoice = new Choice();
 	JButton jButton1 = new JButton("OK");
+	JButton previousBtn = new JButton("<");
+	JButton nextBtn = new JButton(">");
 	JLabel dayLabels[] = new JLabel[42];
 	JTextField textFieldsAM[] = new JTextField[42];
 	JTextField textFieldsPM[] = new JTextField[42];
@@ -181,7 +183,9 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 			}
 		}
 
-		jButton1.addActionListener(this);
+//		jButton1.addActionListener(this);
+		previousBtn.addActionListener(this);
+		nextBtn.addActionListener(this);
 		saveItem.addActionListener(this);
 		openItem.addActionListener(this);
 		exportItem.addActionListener(this);
@@ -190,9 +194,11 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 
 		JPanel pNorth = new JPanel();
 		JPanel pSouth = new JPanel();
+		pNorth.add(previousBtn);
 		pNorth.add(yearChoice);
 		pNorth.add(monthChoice);
-		pNorth.add(jButton1);
+//		pNorth.add(jButton1);
+		pNorth.add(nextBtn);
 
 		ScrollPane scrollPane = new ScrollPane();
 		scrollPane.add(pCenter);
@@ -215,7 +221,49 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 				calendar = mCalendar;
 			}
 			calendar.update();
-		} else if (e.getSource() == openItem) {
+		}else if (e.getSource() == previousBtn) {
+			month = Integer.parseInt(monthChoice.getSelectedItem());
+			year = Integer.parseInt(yearChoice.getSelectedItem());
+			if (month != 1) {
+				month --;
+			}else {
+				month = 12;
+				year --;
+				yearChoice.select(yearChoice.getSelectedIndex() - 1);
+			}
+			monthChoice.select(month-1);
+			MyCalendar mCalendar = new MyCalendar(year, month);
+			if (calendarList.contains(mCalendar)) {
+				calendar = calendarList.get(calendarList.indexOf(mCalendar));
+				calendar.addObserver(this);
+			} else {
+				mCalendar.addObserver(this);
+				calendarList.add(mCalendar);
+				calendar = mCalendar;
+			}
+			calendar.update();
+		} else if (e.getSource() == nextBtn) {
+			month = Integer.parseInt(monthChoice.getSelectedItem());
+			year = Integer.parseInt(yearChoice.getSelectedItem());
+			if (month != 12) {
+				month ++;
+			}else {
+				month = 1;
+				year ++;
+				yearChoice.select(yearChoice.getSelectedIndex() + 1);
+			}
+			monthChoice.select(month-1);
+			MyCalendar mCalendar = new MyCalendar(year, month);
+			if (calendarList.contains(mCalendar)) {
+				calendar = calendarList.get(calendarList.indexOf(mCalendar));
+				calendar.addObserver(this);
+			} else {
+				mCalendar.addObserver(this);
+				calendarList.add(mCalendar);
+				calendar = mCalendar;
+			}
+			calendar.update();
+		}else if (e.getSource() == openItem) {
 			JFileChooser fileChooser = new JFileChooser();
 			fileChooser.showOpenDialog(this);
 			File file = fileChooser.getSelectedFile();
@@ -802,6 +850,18 @@ public class CalendarFrame extends JFrame implements ActionListener, Observer,
 		} else if (e.getSource() == monthChoice) {
 			month = Integer.parseInt(e.getItem().toString());
 		}
+		month = Integer.parseInt(monthChoice.getSelectedItem());
+		year = Integer.parseInt(yearChoice.getSelectedItem());
+		MyCalendar mCalendar = new MyCalendar(year, month);
+		if (calendarList.contains(mCalendar)) {
+			calendar = calendarList.get(calendarList.indexOf(mCalendar));
+			calendar.addObserver(this);
+		} else {
+			mCalendar.addObserver(this);
+			calendarList.add(mCalendar);
+			calendar = mCalendar;
+		}
+		calendar.update();
 
 	}
 
